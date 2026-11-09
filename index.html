@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  body{margin:0;font-size:14px;font-family:"Noto Sans KR",system-ui,-apple-system,sans-serif}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>액체로켓 퀴즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap">
+
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #f0ede6;
+    --fg: #1a1814;
+    --fg2: #4a4740;
+    --accent: #c8521a;
+    --accent-light: #fdf0e8;
+    --accent-hover: #a8420e;
+    --success: #2a7a4a;
+    --success-bg: #e8f5ed;
+    --error: #b82020;
+    --error-bg: #faeaea;
+    --border: #d8d4cc;
+    --shadow: 0 2px 12px rgba(0,0,0,.08);
+    --radius: 14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16150f;
+      --surface: #232118;
+      --surface2: #2c2a1e;
+      --fg: #f0ede6;
+      --fg2: #a09c90;
+      --accent: #e8703a;
+      --accent-light: #2a1f14;
+      --accent-hover: #f08050;
+      --success: #4aaa6a;
+      --success-bg: #0f2a1a;
+      --error: #d85050;
+      --error-bg: #2a0f0f;
+      --border: #3a3830;
+      --shadow: 0 2px 12px rgba(0,0,0,.3);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16150f;
+    --surface: #232118;
+    --surface2: #2c2a1e;
+    --fg: #f0ede6;
+    --fg2: #a09c90;
+    --accent: #e8703a;
+    --accent-light: #2a1f14;
+    --accent-hover: #f08050;
+    --success: #4aaa6a;
+    --success-bg: #0f2a1a;
+    --error: #d85050;
+    --error-bg: #2a0f0f;
+    --border: #3a3830;
+    --shadow: 0 2px 12px rgba(0,0,0,.3);
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  }
+
+  .page-header {
+    background: var(--accent);
+    color: #fff;
+    padding: 20px max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    text-align: center;
+  }
+  .page-header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; }
+  .page-header p { font-size: .8rem; opacity: .85; margin-top: 3px; }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding-inline: max(16px, env(safe-area-inset-left, 0px));
+    padding-inline-end: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  /* Progress */
+  .progress-wrap { padding: 18px 0 6px; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: .78rem;
+    color: var(--fg2);
+    margin-bottom: 7px;
+  }
+  .progress-bar {
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width .4s ease;
+  }
+
+  /* Type badge */
+  .type-badge {
+    display: inline-block;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    padding: 2px 9px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px 20px 18px;
+    margin-top: 14px;
+  }
+  .q-num {
+    font-size: .78rem;
+    color: var(--fg2);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .q-text {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--fg);
+    margin-bottom: 18px;
+    text-wrap: balance;
+  }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .option:active { opacity: .85; }
+  .option.selected {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .option.correct {
+    border-color: var(--success);
+    background: var(--success-bg);
+  }
+  .option.wrong {
+    border-color: var(--error);
+    background: var(--error-bg);
+  }
+  .option-key {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: .82rem;
+    background: var(--surface2);
+    color: var(--fg2);
+    transition: background .15s, color .15s;
+  }
+  .option.selected .option-key { background: var(--accent); color: #fff; }
+  .option.correct .option-key { background: var(--success); color: #fff; }
+  .option.wrong .option-key { background: var(--error); color: #fff; }
+  .option-label { font-size: .95rem; line-height: 1.5; color: var(--fg); min-width: 0; }
+
+  /* Explanation */
+  .explanation {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--surface2);
+    font-size: .85rem;
+    line-height: 1.65;
+    color: var(--fg2);
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--fg); display: block; margin-bottom: 3px; }
+
+  /* Buttons */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    margin-top: 20px;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:disabled {
+    background: var(--border);
+    color: var(--fg2);
+    cursor: default;
+    transform: none;
+  }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--fg);
+    margin-top: 10px;
+  }
+
+  /* Start screen */
+  .start-screen {
+    text-align: center;
+    padding: 40px 0 20px;
+  }
+  .start-icon {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+  }
+  .start-screen h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .start-screen p {
+    color: var(--fg2);
+    font-size: .9rem;
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+  .info-chips {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 18px 0 28px;
+  }
+  .chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: .8rem;
+    color: var(--fg2);
+    font-weight: 500;
+  }
+
+  /* Results screen */
+  .results-screen { padding: 30px 0 20px; }
+  .score-circle {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) calc(var(--pct)*1%), var(--surface2) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    position: relative;
+  }
+  .score-inner {
+    width: 100px;
+    height: 100px;
+    background: var(--surface);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .score-denom { font-size: .75rem; color: var(--fg2); margin-top: 2px; }
+  .score-msg {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .score-sub {
+    text-align: center;
+    color: var(--fg2);
+    font-size: .88rem;
+    margin-bottom: 24px;
+  }
+
+  /* Review list */
+  .review-title {
+    font-size: .88rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--fg2);
+    margin-bottom: 12px;
+  }
+  .review-item {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .review-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .review-body { min-width: 0; }
+  .review-qtext { font-size: .88rem; font-weight: 600; margin-bottom: 4px; }
+  .review-answer { font-size: .82rem; color: var(--fg2); line-height: 1.5; }
+  .review-answer span.correct-ans { color: var(--success); font-weight: 600; }
+  .review-answer span.wrong-ans { color: var(--error); font-weight: 600; }
+
+  [hidden] { display: none !important; }
+
+  /* ── 로켓 고도계 ─────────────────────────── */
+  .rocket-track {
+    position: fixed;
+    right: max(8px, env(safe-area-inset-right, 0px));
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    z-index: 50;
+    pointer-events: none;
+    user-select: none;
+  }
+  .rt-label {
+    font-size: .6rem;
+    color: var(--fg2);
+    font-weight: 600;
+    letter-spacing: .05em;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    opacity: .6;
+    margin-bottom: 2px;
+  }
+  .rt-star { font-size: .95rem; line-height: 1; }
+  .rt-rail {
+    width: 5px;
+    height: min(50vh, 280px);
+    background: linear-gradient(to top, var(--accent), color-mix(in srgb, var(--accent) 20%, transparent));
+    border-radius: 4px;
+    position: relative;
+  }
+  .rt-rocket {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    line-height: 1;
+    transition: bottom 1s cubic-bezier(0.22, 1, 0.36, 1);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.4));
+  }
+  .rt-earth { font-size: .95rem; line-height: 1; }
+  .rt-score {
+    font-size: .65rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    min-width: 28px;
+    line-height: 1.1;
+    margin-top: 2px;
+  }
+  @media (max-width: 400px) {
+    .rt-rail { height: min(42vh, 220px); }
+    .rt-rocket { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <h1>🚀 액체로켓 엔진 퀴즈</h1>
+  <p>우주항공추진기관 — 5장</p>
+</div>
+
+<!-- START SCREEN -->
+<div class="container" id="startScreen">
+  <div class="start-screen">
+    <div class="start-icon">📋</div>
+    <h2>퀴즈를 시작하세요</h2>
+    <p>액체로켓 엔진의 구조, 사이클, 추진제, 냉각 방식,<br>분사기, 특성 길이, 예연소기, 터빈 등에 관한 문제입니다.</p>
+    <div class="info-chips">
+      <span class="chip">총 40문항</span>
+      <span class="chip">4지선다 20문항</span>
+      <span class="chip">O/X 10문항</span>
+      <span class="chip">객관식 10문항</span>
+      <span class="chip">중급 난이도</span>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">퀴즈 시작하기 →</button>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div class="container" id="quizScreen" hidden>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progressText">1 / 20</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:5%"></div></div>
+  </div>
+  <div id="questionArea"></div>
+  <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>다음 문제</button>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div class="container" id="resultsScreen" hidden>
+  <div class="results-screen">
+    <div class="score-circle" id="scoreCircle">
+      <div class="score-inner">
+        <div class="score-num" id="scoreNum">0</div>
+        <div class="score-denom">/ 40</div>
+      </div>
+    </div>
+    <div class="score-msg" id="scoreMsg"></div>
+    <div class="score-sub" id="scoreSub"></div>
+    <button class="btn btn-primary" onclick="retryQuiz()">다시 풀기</button>
+    <button class="btn btn-secondary" onclick="showReview()">문항 풀이 보기</button>
+    <div id="reviewArea" hidden style="margin-top:24px">
+      <div class="review-title">📝 문항별 풀이</div>
+      <div id="reviewList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 로켓 고도계 (퀴즈 진행 중 오른쪽 고정) -->
+<div class="rocket-track" id="rocketTrack" hidden>
+  <div class="rt-label">고도</div>
+  <span class="rt-star">🌟</span>
+  <div class="rt-rail" id="rtRail">
+    <div class="rt-rocket" id="rtRocket">🚀</div>
+  </div>
+  <span class="rt-earth">🌍</span>
+  <div class="rt-score" id="rtScore">0 / 0</div>
+</div>
+
+<script>
+const questions = [
+  {
+    "type": "4지선다",
+    "q": "액체 로켓이 고체 로켓에 비해 갖는 장점으로 슬라이드에 제시된 것은?",
+    "options": [
+      "연소 제어·중단이 가능하고 효율이 높다",
+      "구조가 단순하고 부품 수가 적다",
+      "추진제를 상온에서 장기 저장하기 쉽다",
+      "발사 준비 시간이 항상 더 짧다"
+    ],
+    "answer": 0,
+    "explain": "액체 로켓은 연료·산화제를 별도 탱크에 저장하므로 연소 제어·중단이 가능하고 효율이 높아 우주 탐사, 위성 발사, 유인 우주선에 쓰입니다. (5.1 액체 로켓 추진 개요)"
+  },
+  {
+    "type": "4지선다",
+    "q": "가압식(pressure-fed) 사이클의 단점으로 옳은 것은?",
+    "options": [
+      "탱크 압력이 연소실 압력보다 높아야 하므로 연소실 압력을 올리면 탱크 두께·무게가 증가한다",
+      "터빈 구동 가스를 외부로 배출하여 비추력 손실이 생긴다",
+      "예연소기가 필요하여 시스템이 가장 복잡하다",
+      "배터리 에너지 밀도 때문에 효율에 한계가 있다"
+    ],
+    "answer": 0,
+    "explain": "가압식은 헬륨·질소 등으로 탱크를 가압해 추진제를 공급하므로 탱크 압력 > 연소실 압력이어야 합니다. 연소실 압력을 높이면 탱크가 두껍고 무거워집니다. 장점은 구조 단순·높은 신뢰도이며, 사례는 LMDE, Kestrel, Aestus입니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "다음 중 밀폐(closed) 사이클에 해당하는 것은?",
+    "options": [
+      "가스발생기 사이클",
+      "다단연소 사이클",
+      "개방 팽창기(expander bleed) 사이클",
+      "가압식 사이클"
+    ],
+    "answer": 1,
+    "explain": "밀폐 사이클은 터빈 구동 유체가 연소기로 공급되어 연소되는 방식입니다. 가스발생기 사이클은 개방, 다단연소 사이클은 밀폐로 분류됩니다. (엔진 사이클의 분류)"
+  },
+  {
+    "type": "4지선다",
+    "q": "가스발생기 사이클에서 터빈을 보호하기 위해 가스발생기는 일반적으로 어떤 조건에서 연소시키는가?",
+    "options": [
+      "연료-과농 조건",
+      "산화제-과농 조건",
+      "양론 혼합비 조건",
+      "산화제 단독 분해 조건"
+    ],
+    "answer": 0,
+    "explain": "가스발생기 사이클은 추진제 일부를 가스발생기에서 연소시켜 터빈을 구동하며, 터빈 보호를 위해 일반적으로 연료-과농 조건에서 연소합니다. 터빈 구동 가스는 외부로 배출되어 그만큼 비추력 손실이 생깁니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "다단연소 사이클을 사용하는 주된 목적은?",
+    "options": [
+      "가스발생기 사이클의 약 2~7% 비추력 손실을 방지하기 위해",
+      "펌프 토출 압력을 낮추기 위해",
+      "예연소기 없이 터빈을 구동하기 위해",
+      "탱크 가압 기체를 절약하기 위해"
+    ],
+    "answer": 0,
+    "explain": "다단연소 사이클은 터빈 구동 후 추진제를 연소기로 재공급하여 모든 추진제가 추력을 생성하게 함으로써, 가스발생기 사이클의 2~7% 비추력 손실을 방지합니다. 대신 펌프 토출 압력이 증가하고 시스템이 복잡해집니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "연료와 산화제가 각각 부분 연소하여 두 개의 터빈을 구동하는 전유량(full-flow) 다단연소 사이클을 사용하는 엔진은?",
+    "options": [
+      "Space Shuttle RS-25",
+      "Energia RD-170",
+      "Starship Raptor",
+      "RL10"
+    ],
+    "answer": 2,
+    "explain": "Raptor는 전유량 다단연소 사이클로, 메탄 예연소기와 산소 예연소기, 독립 터보펌프 2기를 가집니다. RS-25는 연료-과농, RD-170은 산화제-과농 다단연소, RL10은 밀폐 팽창기 사이클입니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "밀폐 팽창기 사이클의 추력이 약 300 kN 정도로 제한되는 이유는?",
+    "options": [
+      "square-cube 법칙: 열을 받는 표면적은 L²에, 연료 부피는 L³에 비례하기 때문",
+      "예연소기의 압력 한계 때문",
+      "수소의 밀도가 너무 높기 때문",
+      "터빈 구동 가스를 외부로 배출하기 때문"
+    ],
+    "answer": 0,
+    "explain": "팽창기 사이클은 연소실/노즐 벽의 열로 연료를 가열·기화해 터빈을 구동합니다. 엔진이 커지면 열을 받는 표면적(∝L²)보다 연료 부피(∝L³)가 더 빨리 증가하여 터빈 구동 에너지가 부족해집니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "전기펌프 사이클에 대한 설명으로 옳은 것은?",
+    "options": [
+      "배터리 전력으로 전기 모터를 돌려 펌프를 구동하며, Electron의 Rutherford 엔진에 최초 적용되었다",
+      "연소실 벽의 열로 기화된 연료로 터빈을 구동한다",
+      "헬륨으로 탱크를 가압하여 추진제를 공급한다",
+      "배터리 에너지 밀도가 매우 높아 효율 한계가 없다"
+    ],
+    "answer": 0,
+    "explain": "전기펌프 사이클은 터빈 대신 전기 모터를 사용하여 사이클이 단순하고 추진제 손실이 최소입니다. 단점은 배터리 에너지 밀도·무게입니다. Rutherford는 소모된 배터리 모듈 일부를 버려 ΔV를 높입니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "표 5-1에 따르면 액체 수소의 밀도는 RP-1의 약 몇 분의 1인가?",
+    "options": [
+      "약 1/2",
+      "약 1/5",
+      "약 1/11",
+      "약 1/50"
+    ],
+    "answer": 2,
+    "explain": "액체 수소 70.85 kg/m³, RP-1 810 kg/m³이므로 약 1/11입니다. 이것이 수소 엔진에서 탱크 부피가 커지는 원인입니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "표 5-2(진공)에서 LOx/CH4 조합을 LOx/RP-1 조합과 비교한 것으로 옳은 것은?",
+    "options": [
+      "비추력은 높고, 비중은 낮다",
+      "비추력은 낮고, 비중은 높다",
+      "비추력과 비중 모두 높다",
+      "비추력과 비중 모두 낮다"
+    ],
+    "answer": 0,
+    "explain": "진공 기준 LOx/CH4는 비추력 369 s, 비중 0.83이고 LOx/RP-1은 비추력 358 s, 비중 1.03입니다. 메탄은 수소와 케로신의 중간 특성을 갖습니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "표 5-2에서 대기(1 atm) 조건의 비추력이 진공 조건보다 작은 이유는?",
+    "options": [
+      "연소생성물이 1 atm까지만 팽창하여 배기속도가 감소하기 때문",
+      "대기 중 산소가 연소에 추가로 참여하기 때문",
+      "혼합비가 달라지기 때문",
+      "연소 온도가 더 높아지기 때문"
+    ],
+    "answer": 0,
+    "explain": "대기 조건에서는 연소생성물이 1 atm까지만 팽창하므로 배기속도가 감소하여 비추력이 작아집니다. (표 5-2 주석)"
+  },
+  {
+    "type": "4지선다",
+    "q": "RP-1(미국)·RG-1(러시아) 케로신에서 황·방향족 성분을 저감한 주된 이유는?",
+    "options": [
+      "냉각채널의 코킹(coking)을 억제하기 위해",
+      "자기발화성을 얻기 위해",
+      "끓는점을 낮추기 위해",
+      "밀도를 낮추기 위해"
+    ],
+    "answer": 0,
+    "explain": "RP-1, RG-1은 냉각채널 코킹을 억제하기 위해 황·방향족 성분을 줄이고 밀도를 높인 로켓용 케로신입니다. 참고로 누리호 1/2/3단은 민간 항공기용 Jet A-1을 사용합니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "전단동축(shear coaxial) 분사기가 주로 적용되는 추진제 조건과 엔진으로 옳은 것은?",
+    "options": [
+      "산화제 액체 + 연료 기체(수소) — RS-25, J-2, Vulcain",
+      "두 추진제 모두 액체 — RD-107, KRE-075",
+      "액체/액체 충돌 — F-1, H-1",
+      "산화제-과농 다단연소 케로신 엔진 — RD-170, RD-180"
+    ],
+    "answer": 0,
+    "explain": "전단동축 분사기는 외부 고속 기체와 내부 저속 액체 사이의 전단력으로 미립화·혼합하며, 산화제 액체 + 연료 기체(수소) 조합에 쓰입니다(J-2, RS-25, RS-68, LE-7A, Vulcain, Vinci 등)."
+  },
+  {
+    "type": "4지선다",
+    "q": "와류동축(swirl coaxial) 분사기를 전단동축 분사기와 비교한 설명으로 옳은 것은?",
+    "options": [
+      "동일 유량에서 분무각이 크고 분열길이가 짧다",
+      "동일 유량에서 분무각이 작고 분열길이가 길다",
+      "회전 운동 없이 전단력만으로 미립화한다",
+      "두 추진제 모두 기체일 때만 사용한다"
+    ],
+    "answer": 0,
+    "explain": "와류동축 분사기는 접선 홀이나 스월러로 회전 운동을 주어, 같은 유량에서 전단동축보다 분무각이 크고 분열길이가 짧습니다. 적용: RL10, 산화제-과농 다단연소 RD-170, RD-180, RD-8."
+  },
+  {
+    "type": "4지선다",
+    "q": "슬리브를 움직여 분사 차압을 일정하게 유지하면서 유량을 조절, 추력 제어가 가능한 분사기는?",
+    "options": [
+      "충돌 분사기",
+      "전단동축 분사기",
+      "이중와류동축 분사기",
+      "핀틀 분사기"
+    ],
+    "answer": 3,
+    "explain": "핀틀 분사기는 중앙의 핀틀 하나로 연소기를 구성할 수 있고, 슬리브 이동으로 유량을 조절해 추력을 제어합니다(달 착륙선). 적용: LMDE, Merlin."
+  },
+  {
+    "type": "4지선다",
+    "q": "교재 본문에서 권장하는 분사기 차압(ΔP)은 연소실 압력(Pc)의 약 몇 % 범위인가?",
+    "options": [
+      "1~5%",
+      "15~25%",
+      "50~70%",
+      "100% 이상"
+    ],
+    "answer": 1,
+    "explain": "분사기 차압은 대부분 Pc의 약 10~35% 범위이며, 교재 권장값은 15~25%입니다(ΔP ≈ (0.15~0.25)Pc). 분사기 유량은 ṁ = Cd·A·√(2ρΔP)로 계산합니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "저주파 연소불안정의 원인과 대책을 바르게 연결한 것은?",
+    "options": [
+      "공급 시스템 유량 변동·펌프 진동 — 분사기 차압 증가",
+      "연소실 음향 공진 — 배플 설치",
+      "노즐 과팽창 — 팽창비 감소",
+      "냉각 부족 — 막냉각 적용"
+    ],
+    "answer": 0,
+    "explain": "저주파(수십~수백 Hz) 연소불안정은 연료·산화제 공급 시스템의 유량 변동, 펌프 진동이 원인이며, 분사기 차압이나 공급 시스템 저항을 증가시켜 억제합니다. 음향 공진은 고주파 불안정의 원인입니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "고주파 연소불안정을 억제하기 위해 연소실에 설치하는 장치로만 묶인 것은?",
+    "options": [
+      "배플, 음향공",
+      "터보펌프, 기어박스",
+      "가스발생기, 예연소기",
+      "파이로 시동기, 스월러"
+    ],
+    "answer": 0,
+    "explain": "배플은 음향 파동 전파를 차단·회절하여 공명 주파수를 분리하고, 음향공(f = (c/2π)√(A/VL))은 특정 주파수를 흡수하여 고주파 연소불안정을 억제합니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "연소실 특성 길이 L*의 정의로 옳은 것은? (Vc: 연소실 체적, At: 노즐목 면적)",
+    "options": [
+      "L* = Vc / At",
+      "L* = At / Vc",
+      "L* = Ac / At",
+      "L* = Ae / At"
+    ],
+    "answer": 0,
+    "explain": "L* = Vc/At (식 5-5)입니다. Vc = ṁ·ts/ρ이므로 L*는 추진제의 연소실 체류 시간 ts와 관련됩니다. Ac/At는 수축비 εc, Ae/At는 노즐 팽창비 εn입니다."
+  },
+  {
+    "type": "4지선다",
+    "q": "수소 연료 엔진은 연료-과농, 케로신 연료 엔진은 산화제-과농 예연소기를 사용한다. 케로신에서 연료-과농을 피하는 이유는?",
+    "options": [
+      "연료-과농 연소 시 생기는 soot가 분사기의 작은 홀을 막기 때문",
+      "케로신은 산화제와 자기발화하기 때문",
+      "연료-과농 시 연소 온도가 지나치게 높아지기 때문",
+      "케로신이 극저온 추진제이기 때문"
+    ],
+    "answer": 0,
+    "explain": "케로신을 연료-과농으로 연소시키면 soot(그을음)가 발생해 분사기의 작은 홀을 막습니다. 그래서 RD-170, RD-191 같은 케로신 다단연소 엔진은 산화제-과농 예연소기를 사용합니다."
+  },
+  {
+    "type": "O / X",
+    "q": "가스발생기 사이클의 터빈 구동 가스는 연소기로 재공급되어 연소된다.",
+    "options": [
+      "O (맞다)",
+      "X (틀리다)"
+    ],
+    "answer": 1,
+    "explain": "틀립니다. 가스발생기 사이클(개방)의 터빈 구동 가스는 외부로 배출되거나 노즐 하단으로 유입되며, 배출 유량만큼 비추력 손실이 생깁니다. 연소기로 재공급하는 것은 다단연소 사이클(밀폐)입니다."
+  },
+  {
+    "type": "O / X",
+    "q": "팽창기 사이클은 가스발생기나 예연소기 없이 연소실·노즐 주변의 열로 연료를 기화시켜 터빈을 구동한다.",
+    "options": [
+      "O (맞다)",
+      "X (틀리다)"
+    ],
+    "answer": 0,
+    "explain": "맞습니다. 그래서 쉽게 기화하고 많은 열을 흡수하는(낮은 끓는점·고비열) 수소나 메탄이 연료로 적합합니다. 사례: RL10, Vinci(밀폐), LE-5A/5B, LE-9(개방)."
+  },
+  {
+    "type": "O / X",
+    "q": "다단연소 사이클의 예연소기는 연소실보다 낮은 압력에서 연소한다.",
+    "options": [
+      "O (맞다)",
+      "X (틀리다)"
+    ],
+    "answer": 1,
+    "explain": "틀립니다. 예연소기 가스는 터빈 구동 후 연소기로 재공급되어야 하므로 연소실보다 훨씬 높은 압력이어야 하며, 이 때문에 터보펌프 토출 압력이 증가합니다. 가스발생기는 연소실보다 압력이 낮습니다."
+  },
+  {
+    "type": "O / X",
+    "q": "N2O4와 UDMH처럼 혼합만으로 점화되는 자기발화성(hypergolic) 추진제는 별도의 점화 장치가 필요 없다.",
+    "options": [
+      "O (맞다)",
+      "X (틀리다)"
+    ],
+    "answer": 0,
+    "explain": "맞습니다. 저장성 조합 대부분은 자기발화성이며, 접촉 즉시 점화되어 시스템이 간단하고 신뢰성이 높습니다. 단, N2O4는 부식성·유독성, UDMH는 강한 독성이 단점입니다."
+  },
+  {
+    "type": "O / X",
+    "q": "액체 수소는 탱크가 작을수록 증발 손실(boil-off)이 빨라진다.",
+    "options": [
+      "O (맞다)",
+      "X (틀리다)"
+    ],
+    "answer": 0,
+    "explain": "맞습니다. 제곱-세제곱 법칙 때문에 작은 탱크일수록 부피 대비 표면적이 커서 증발 손실이 빠릅니다. 액체 수소는 하루 13~17%의 증발 손실이 가능합니다."
+  },
+  {
+    "type": "O / X",
+    "q": "표 5-3, 5-4에 따르면 상단 엔진의 노즐 팽창비는 1단 엔진보다 대체로 작다.",
+    "options": [
+      "O (맞다)",
+      "X (틀리다)"
+    ],
+    "answer": 1,
+    "explain": "틀립니다. 상단 엔진은 대부분 80~280(RL10B-2 280, VINCI 240)으로, 1단(8~78)보다 노즐 팽창비가 큽니다."
+  },
+  {
+    "type": "O / X",
+    "q": "표 5-3에서 같은 LOx/LH2 1단 엔진이라도 다단연소(밀폐) 엔진의 비추력이 가스발생기(개방) 엔진보다 높다.",
+    "options": [
+      "O (맞다)",
+      "X (틀리다)"
+    ],
+    "answer": 0,
+    "explain": "맞습니다. RS-25(SC) 452 s, LE-7(SC) 446 s ↔ RS-68(GG) 409 s, Vulcain(GG) 433 s로, 밀폐 사이클 > 개방 사이클 경향을 보입니다."
+  },
+  {
+    "type": "O / X",
+    "q": "가스발생기는 연소 온도가 높아 일반적으로 재생냉각을 적용한다.",
+    "options": [
+      "O (맞다)",
+      "X (틀리다)"
+    ],
+    "answer": 1,
+    "explain": "틀립니다. 가스발생기는 터빈 보호를 위해 낮은 연소 온도와 균일한 온도 분포가 요구되므로 내열 금속을 사용하며, 일반적으로 재생냉각을 적용하지 않습니다."
+  },
+  {
+    "type": "O / X",
+    "q": "Boot-strapping 시동 방식은 추가적인 터빈 시동 장치가 필요 없지만, 시동 절차와 밸브 타이밍이 매우 정교해야 한다.",
+    "options": [
+      "O (맞다)",
+      "X (틀리다)"
+    ],
+    "answer": 0,
+    "explain": "맞습니다. RS-25, RL10이 사용합니다. 반면 spin start(파이로 시동기, 고압 기체)는 빠르게 정상 상태에 도달하지만 파이로 시동기는 1회성이라 재점화하려면 추가 장치가 필요합니다."
+  },
+  {
+    "type": "O / X",
+    "q": "Rayleigh 기준에 따르면 압력 섭동 p′와 열방출 섭동 q′가 같은 위상일 때(∫∫p′q′dt dV > 0) 고주파 연소불안정이 성장한다.",
+    "options": [
+      "O (맞다)",
+      "X (틀리다)"
+    ],
+    "answer": 0,
+    "explain": "맞습니다. 압력 변동과 열방출 변동이 동위상이면 음향 에너지가 공급되어 불안정이 증폭됩니다(식 5-3)."
+  },
+  {
+    "type": "객관식",
+    "q": "1단 엔진과 상단 엔진의 설계에서 각각 우선시하는 것은?",
+    "options": [
+      "1단: 높은 추력 / 상단: 높은 비추력",
+      "1단: 높은 비추력 / 상단: 높은 추력",
+      "둘 다 높은 추력",
+      "둘 다 낮은 연소실 압력"
+    ],
+    "answer": 0,
+    "explain": "1단 엔진은 높은 추력, 상단 엔진은 높은 비추력(Isp)을 중시합니다. 그래서 상단 엔진은 노즐 팽창비가 크고 LOx/LH2 팽창기 엔진이 많습니다."
+  },
+  {
+    "type": "객관식",
+    "q": "1단 추진제 조합 평가에 중요한 밀도 비추력의 정의는?",
+    "options": [
+      "Isp × SG",
+      "Isp ÷ SG",
+      "Isp × O/F",
+      "c* × Cf"
+    ],
+    "answer": 0,
+    "explain": "밀도 비추력 Isp-vol = Isp·SG입니다. SG는 혼합비를 고려한 추진제 평균 비중으로, 밀도가 높을수록 탱크 부피가 줄어 1단에 유리합니다."
+  },
+  {
+    "type": "객관식",
+    "q": "표 5-2(진공)에서 LOx/CH4 조합의 질량 기준 혼합비(O/F)는?",
+    "options": [
+      "2.77",
+      "3.45",
+      "4.83",
+      "6.0"
+    ],
+    "answer": 1,
+    "explain": "LOx/CH4의 O/F는 3.45(비추력 369 s)입니다. LOx/H2는 4.83, LOx/RP-1은 2.77입니다. (Pc = 6.89 MPa, 팽창비 40, 진공 등엔트로피 팽창 기준)"
+  },
+  {
+    "type": "객관식",
+    "q": "노즐목 단면적 At를 구하는 식은? (c*: 특성 배기속도)",
+    "options": [
+      "At = ṁ·c* / Pc",
+      "At = Pc / (ṁ·c*)",
+      "At = T / Pc",
+      "At = ṁ / (Pc·c*)"
+    ],
+    "answer": 0,
+    "explain": "At = ṁ·c*/Pc (식 5-8)입니다. 또한 Pc = T/(Cf·At) (식 5-9)로부터 추력계수 Cf = T/(Pc·At)를 얻습니다."
+  },
+  {
+    "type": "객관식",
+    "q": "표 5-7에서 LOx/RP-1 조합의 특성 길이 L* 범위는?",
+    "options": [
+      "0.56~0.71 m",
+      "0.76~0.89 m",
+      "1.02~1.27 m",
+      "1.52~1.78 m"
+    ],
+    "answer": 2,
+    "explain": "LOx/RP-1은 1.02~1.27 m입니다. LOx/LH2(GH2 분사) 0.56~0.71 m, N2O4/히드라진 0.76~0.89 m, 과산화수소/RP-1 1.52~1.78 m입니다."
+  },
+  {
+    "type": "객관식",
+    "q": "노즐목 근처의 가스쪽 대류 열전달 계수 hg를 추정하는 데 쓰는 식은?",
+    "options": [
+      "Bartz 식",
+      "Rayleigh 기준",
+      "Stefan-Boltzmann 식",
+      "Dittus-Boelter 식"
+    ],
+    "answer": 0,
+    "explain": "Bartz 식(식 5-21)으로 가스쪽 열전달 계수 hg를 구합니다. Dittus-Boelter 식은 냉각채널(냉각수쪽) 대류 열전달, Stefan-Boltzmann 식은 복사냉각에 사용합니다."
+  },
+  {
+    "type": "객관식",
+    "q": "단일 터빈으로 두 펌프를 구동하는 터보펌프의 에너지 균형식은?",
+    "options": [
+      "P_turb = P_f,pump + P_o,pump",
+      "P_turb = P_f,pump − P_o,pump",
+      "P_turb = P_f,pump × P_o,pump",
+      "P_turb = (P_f,pump + P_o,pump) / 2"
+    ],
+    "answer": 0,
+    "explain": "터빈 출력은 연료 펌프와 산화제 펌프의 출력 합과 같습니다(식 5-27). 펌프 출력은 P_pump = ṁ·ΔP/(ρ·η_pump)입니다."
+  },
+  {
+    "type": "객관식",
+    "q": "터빈 출력 P_turb = η·ṁ·Cp·T_in·[1 − (P_out/P_in)^((γ−1)/γ)]에서 출력을 높이는 조건은?",
+    "options": [
+      "터빈 전/후 압력비(P_in/P_out) 증가",
+      "터빈 입구 온도 감소",
+      "터빈 유량 감소",
+      "터빈 효율 감소"
+    ],
+    "answer": 0,
+    "explain": "압력비가 클수록 괄호 항이 커져 출력이 증가합니다. 그래서 가스발생기 사이클은 압력비를 크게 하여 적은 유량으로 높은 출력을 얻습니다. 터빈 입구 온도는 터빈 보호를 위해 약 800~1170 K 수준으로 제한됩니다(표 5-8)."
+  },
+  {
+    "type": "객관식",
+    "q": "액체 수소/액체 산소처럼 밀도 차이가 큰 추진제를 쓸 때, RL10이 두 펌프의 회전 속도를 맞추기 위해 사용하는 장치는?",
+    "options": [
+      "기어박스",
+      "배플",
+      "음향공",
+      "파이로 시동기"
+    ],
+    "answer": 0,
+    "explain": "LH2와 LOx는 밀도 차이가 커서 같은 회전 속도면 한쪽 펌프 효율이 크게 떨어집니다. RL10은 기어박스로 회전 속도를 조절하고, RS-25·Raptor는 독립 터빈 방식으로 각 펌프를 최적 속도로 운전합니다."
+  },
+  {
+    "type": "객관식",
+    "q": "종합 예제에서 재생냉각(#2)을 복사냉각(#1)과 비교한 결과는?",
+    "options": [
+      "열유속 약 12배를 처리하면서 벽면 온도는 절반 수준",
+      "열유속은 절반, 벽면 온도는 2배",
+      "열유속과 벽면 온도 모두 비슷",
+      "열유속은 같고 벽면 온도만 낮음"
+    ],
+    "answer": 0,
+    "explain": "복사냉각은 Twg 2492 K, 2.08 MW/m², 재생냉각은 노즐목에서 Twg 1220 K, 약 24.9 MW/m²로, 열유속 약 12배를 처리하면서 벽면 온도는 절반 수준입니다."
+  }
+];
+
+let current = 0;
+let userAnswers = [];
+let answered = false;
+
+function updateRocket() {
+  const answered = userAnswers.length;
+  const score = userAnswers.filter((a, i) => a === questions[i].answer).length;
+  const rail = document.getElementById('rtRail');
+  const rocket = document.getElementById('rtRocket');
+  const scoreEl = document.getElementById('rtScore');
+  if (!rail || !rocket) return;
+  const railH = rail.offsetHeight;
+  const rocketH = rocket.offsetHeight || 24;
+  const maxBottom = railH - rocketH - 2;
+  const pct = score / questions.length;
+  rocket.style.bottom = Math.max(0, Math.round(pct * maxBottom)) + 'px';
+  if (scoreEl) scoreEl.textContent = score + ' / ' + answered;
+}
+
+function startQuiz() {
+  document.getElementById('startScreen').hidden = true;
+  document.getElementById('quizScreen').hidden = false;
+  document.getElementById('rocketTrack').hidden = false;
+  updateRocket();
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const area = document.getElementById('questionArea');
+  const pct = Math.round(((current) / questions.length) * 100);
+
+  document.getElementById('progressText').textContent = `${current + 1} / ${questions.length}`;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = Math.max(5, pct) + '%';
+
+  const isLast = current === questions.length - 1;
+  document.getElementById('nextBtn').textContent = isLast ? '결과 보기 →' : '다음 문제';
+  document.getElementById('nextBtn').disabled = true;
+
+  const optHTML = q.options.map((opt, i) => {
+    const key = q.type === 'O / X' ? (i === 0 ? 'O' : 'X') : String.fromCharCode(65 + i);
+    return `<div class="option" id="opt${i}" onclick="selectOption(${i})">
+      <span class="option-key">${key}</span>
+      <span class="option-label">${opt}</span>
+    </div>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="question-card">
+      <span class="type-badge">${q.type}</span>
+      <div class="q-num">문항 ${current + 1}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">${optHTML}</div>
+      <div class="explanation" id="explanation">
+        <strong id="explainVerdict"></strong>
+        ${q.explain}
+      </div>
+    </div>`;
+
+  answered = false;
+
+  // If already answered (back-navigation not used, but re-renders)
+  if (userAnswers[current] !== undefined) {
+    markAnswer(userAnswers[current]);
+  }
+}
+
+function selectOption(i) {
+  if (answered) return;
+  answered = true;
+  userAnswers[current] = i;
+  markAnswer(i);
+  document.getElementById('nextBtn').disabled = false;
+  updateRocket();
+}
+
+function markAnswer(selected) {
+  const q = questions[current];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach((el, i) => {
+    el.onclick = null;
+    if (i === q.answer) el.classList.add('correct');
+    else if (i === selected && i !== q.answer) el.classList.add('wrong');
+  });
+  const isCorrect = selected === q.answer;
+  document.getElementById('explainVerdict').textContent = isCorrect ? '✅ 정답입니다!' : '❌ 오답입니다.';
+  document.getElementById('explanation').classList.add('show');
+}
+
+function nextQuestion() {
+  if (!answered && userAnswers[current] === undefined) return;
+  if (current < questions.length - 1) {
+    current++;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  document.getElementById('quizScreen').hidden = true;
+  document.getElementById('resultsScreen').hidden = false;
+  const score = userAnswers.filter((a, i) => a === questions[i].answer).length;
+  const pct = Math.round((score / questions.length) * 100);
+
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreCircle').style.setProperty('--pct', pct);
+
+  let msg, sub;
+  if (pct >= 90) { msg = '🏆 훌륭합니다!'; sub = '거의 완벽하게 이해하고 있습니다.'; }
+  else if (pct >= 70) { msg = '👏 잘 했습니다!'; sub = '핵심 개념을 잘 이해하고 있습니다.'; }
+  else if (pct >= 50) { msg = '📚 조금 더 복습해 보세요'; sub = '틀린 문항의 풀이를 꼭 확인하세요.'; }
+  else { msg = '📖 다시 학습해 보세요'; sub = '강의 슬라이드를 한 번 더 살펴보세요.'; }
+
+  document.getElementById('scoreMsg').textContent = msg;
+  document.getElementById('scoreSub').textContent = sub;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showReview() {
+  const area = document.getElementById('reviewArea');
+  area.hidden = !area.hidden;
+  if (!area.hidden) {
+    const list = document.getElementById('reviewList');
+    list.innerHTML = questions.map((q, i) => {
+      const correct = userAnswers[i] === q.answer;
+      const userOpt = userAnswers[i] !== undefined ? q.options[userAnswers[i]] : '(미응답)';
+      const correctOpt = q.options[q.answer];
+      return `<div class="review-item">
+        <span class="review-icon">${correct ? '✅' : '❌'}</span>
+        <div class="review-body">
+          <div class="review-qtext">${i+1}. ${q.q}</div>
+          <div class="review-answer">
+            내 답: <span class="${correct ? 'correct-ans' : 'wrong-ans'}">${userOpt}</span>
+            ${!correct ? `<br>정답: <span class="correct-ans">${correctOpt}</span>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function retryQuiz() {
+  current = 0;
+  userAnswers = [];
+  answered = false;
+  document.getElementById('resultsScreen').hidden = true;
+  document.getElementById('reviewArea').hidden = true;
+  document.getElementById('quizScreen').hidden = false;
+  // 로켓 위치 초기화 (트랜지션 없이 즉시)
+  const rocket = document.getElementById('rtRocket');
+  if (rocket) {
+    rocket.style.transition = 'none';
+    rocket.style.bottom = '0';
+    setTimeout(() => { rocket.style.transition = ''; }, 50);
+  }
+  const scoreEl = document.getElementById('rtScore');
+  if (scoreEl) scoreEl.textContent = '0 / 0';
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
